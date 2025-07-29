@@ -96,8 +96,19 @@ with open(fn, encoding='utf-8') as json_file:
         newEntry = []
 
         createDate = dateutil.parser.isoparse(entry['creationDate'])
-        localDate = createDate.astimezone(
-            pytz.timezone(entry['timeZone']))  # It's natural to use our local date/time as reference point, not UTC
+        tz = None
+        try:
+             # It's natural to use our local date/time as reference point, not UTC
+            tz = pytz.timezone(entry['timeZone'])
+        except pytz.UnknownTimeZoneError:
+            # Interpret timezones like UTC+0100 or GMT-05 correctly
+            m = re.match(r'(UTC|GMT)([-+]\d{2,4})', entry['timeZone'], re.IGNORECASE)
+            if m:
+                tz = pytz.FixedOffset(int(m.group(2)) * (60 if len(m.group(2)) == 3 else 1))
+            else:
+                print(f"Unknown timezone {entry['timeZone']}, using UTC")
+
+        localDate = createDate.astimezone(tz) if tz else createDate 
 
         # Format the date and time with the weekday
         formatted_datetime = createDate.strftime("%Y-%m-%d %H:%M:%S %A")
