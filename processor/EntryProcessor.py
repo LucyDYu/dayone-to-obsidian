@@ -76,11 +76,16 @@ class EntryProcessor:
             weather_entry = entry['weather']
             if 'temperatureCelsius' in weather_entry and 'conditionsDescription' in weather_entry:
                 temperature = int(weather_entry['temperatureCelsius'])
+                symbol = "C"
+                if Config.get("USE_FAHRENHEIT", True):
+                # formula to convert Celsius to Fahrenheit
+                    temperature = (temperature * 9/5) + 32
+                    symbol = "F"
                 description = weather_entry['conditionsDescription']
                 if 'location' in entry and 'localityName' in entry['location']:
                     weather_location = entry['location']['localityName']
                     weather += f"{weather_location} "
-                weather += f"{temperature}°C {description}"
+                weather += f"{temperature}°{symbol} {description}"
         return weather
 
     @staticmethod

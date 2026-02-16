@@ -28,5 +28,14 @@ TAG_PREFIX: "DayOne/"
 ADDITIONAL_TAGS:
   - "From/DayOne"
 
+# Choose whether to include certain types of media. True/False
+INCLUDE_PHOTOS: True
+INCLUDE_AUDIO: True
+INCLUDE_PDFS: True
+INCLUDE_VIDEOS: True
 
+# Set to True if you are using the Icons Plugin in Obsidian
+INCLUDE_ICONS: False
 
+# Set to True to use Fahrenheit for weather
+USE_FAHRENHEIT: False

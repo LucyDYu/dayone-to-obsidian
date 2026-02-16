@@ -28,13 +28,17 @@ def rename_media(root, subpath, media_entry, filetype):
 # Load the configuration
 Config.load_config("config.yaml")
 DEFAULT_TEXT = Config.get("DEFAULT_TEXT", "")
+includePhotos = Config.get("INCLUDE_PHOTOS", True)
+includeAudio = Config.get("INCLUDE_AUDIO", True)
+includePDFs = Config.get("INCLUDE_PDFS", True)
+includeVideos = Config.get("INCLUDE_VIDEOS", True)
+includeIcons = Config.get("INCLUDE_ICONS", False)
 
 # Initialize the EntryProcessor class variables
 EntryProcessor.initialize()
 
 # Set this as the location where your Journal.json file is located
 root = Config.get("ROOT")
-icons = False  # Set to true if you are using the Icons Plugin in Obsidian
 
 # name of folder where journal entries will end up
 journalFolder = os.path.join(root, Config.get("JOURNAL_FOLDER"))
@@ -51,7 +55,27 @@ if not os.path.isdir(journalFolder):
     print("Creating journal folder: %s" % journalFolder)
     os.mkdir(journalFolder)
 
-if icons:
+if includePhotos:
+    print("Photos are on")
+else:
+    print("Photos are off")
+
+if includeAudio:
+    print("Audio files are on")
+else:
+    print("Audio files are off")
+
+if includePDFs:
+    print("PDFs are on")
+else:
+    print("PDFs are off")
+
+if includeVideos:
+    print("Videos are on")
+else:
+    print("Videos are off")
+
+if includeIcons:
     print("Icons are on")
     dateIcon = "`fas:CalendarAlt` "
 else:
@@ -126,10 +150,15 @@ with open(fn, encoding='utf-8') as json_file:
                 for p in photo_list:
                     photo_processor.add_entry_to_dict(p)
                     rename_media(root, 'photos', p, p['type'])
+                    
+                    if includePhotos:
+                        repl = photo_processor.replace_entry_id_with_info
+                    else:
+                        repl = ""
 
                 # Now to replace the text to point to the file in obsidian
                 newText = re.sub(r"(\!\[\]\(dayone-moment:\/\/)([A-F0-9]+)(\))",
-                                 photo_processor.replace_entry_id_with_info,
+                                 repl,
                                  newText)
 
             if 'audios' in entry:
@@ -138,8 +167,15 @@ with open(fn, encoding='utf-8') as json_file:
                     audio_processor.add_entry_to_dict(p)
                     rename_media(root, 'audios', p, "m4a")
 
+                    if includeAudio:
+                        repl = audio_processor.replace_entry_id_with_info
+                    else:
+                        repl = ""
+
+
                 newText = re.sub(r"(\!\[\]\(dayone-moment:\/audio\/)([A-F0-9]+)(\))",
-                                 audio_processor.replace_entry_id_with_info, newText)
+                                 repl, 
+                                 newText)
 
             if 'pdfAttachments' in entry:
                 pdf_list = entry['pdfAttachments']
@@ -147,18 +183,32 @@ with open(fn, encoding='utf-8') as json_file:
                     pdf_processor.add_entry_to_dict(p)
                     rename_media(root, 'pdfs', p, p['type'])
 
+                    if includePDFs:
+                        repl = pdf_processor.replace_entry_id_with_info
+                    else:
+                        repl = ""
+
                 newText = re.sub(r"(\!\[\]\(dayone-moment:\/pdfAttachment\/)([A-F0-9]+)(\))",
-                                 pdf_processor.replace_entry_id_with_info, newText)
+                                 repl, 
+                                 newText)
 
             if 'videos' in entry:
                 video_list = entry['videos']
                 for p in video_list:
                     video_processor.add_entry_to_dict(p)
                     rename_media(root, 'videos', p, p['type'])
+                
+                    if includeVideos:
+                        repl = video_processor.replace_entry_id_with_info
+                    else:
+                        repl = ""
 
                 newText = re.sub(r"(\!\[\]\(dayone-moment:\/video\/)([A-F0-9]+)(\))",
-                                 video_processor.replace_entry_id_with_info, newText)
+                                 repl, 
+                                 newText)
 
+            # remove blank lines
+            newText = os.linesep.join([line for line in newText.splitlines() if line])
             newEntry.append(newText)
 
         except Exception as e:

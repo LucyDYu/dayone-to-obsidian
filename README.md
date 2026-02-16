@@ -75,7 +75,7 @@ Location: [Place, City, Country](geo:latitude,longitude)
 * Obsidian [Icons Plugin](https://github.com/visini/obsidian-icons-plugin) to display calendar marker at start of page heading
 
 ## Day One version
-This script works with version 2023.13 (1490) of Day One. It has not been tested with any other versions.
+This script works with version 2025.24 (1711) of Day One. It has not been tested with any other versions.
 
 ## Setup
 
@@ -85,7 +85,7 @@ This script works with version 2023.13 (1490) of Day One. It has not been tested
 1. Export your journal from [Day One in JSON format](https://help.dayoneapp.com/en/articles/440668-exporting-entries) 
 2. Expand that zip file
 3. Adjust the *ROOT* variable in config.yaml to point to the location where your zip file was expanded and Journal.json exists. You should also have several media folders here if there were photos audios etc in your journal. Additional settings can also be configured in `config.yaml`.
-4. If you **not** are using the [Icons Plugin](https://github.com/visini/obsidian-icons-plugin) to display calendar marker at start of page heading set *icons = False*
+4. If you **not** are using the [Icons Plugin](https://github.com/visini/obsidian-icons-plugin) to display calendar marker at start of page heading set *includeIcons = False*
 5. Run the script
    1. Change to the project directory:
       ```
