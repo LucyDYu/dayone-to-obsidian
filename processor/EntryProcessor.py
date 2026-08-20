@@ -48,9 +48,10 @@ class EntryProcessor:
 
     @staticmethod
     def get_coordinates(entry: dict):
-        if 'location' in entry:
-            coordinates = str(entry['location']['latitude']) + ',' + str(entry['location']['longitude'])
-            return coordinates
+        location = entry.get('location', {})
+        if 'latitude' not in location or 'longitude' not in location:
+            return ""
+        return str(location['latitude']) + ',' + str(location['longitude'])
 
     @staticmethod
     def get_location_coordinate(entry: dict):
