@@ -25,6 +25,26 @@ def rename_media(root, subpath, media_entry, filetype):
         os.rename(pfn, newfn)
 
 
+def get_timezone(timezone_name):
+    try:
+        return pytz.timezone(timezone_name)
+    except pytz.UnknownTimeZoneError:
+        match = re.fullmatch(r'(?:UTC|GMT)([+-])(\d{2})(\d{2})?', timezone_name, re.IGNORECASE)
+        if match is None:
+            raise
+
+        sign, hours_string, minutes_string = match.groups()
+        hours = int(hours_string)
+        minutes = int(minutes_string or 0)
+        if hours > 23 or minutes > 59:
+            raise
+
+        offset_minutes = (hours * 60) + minutes
+        if sign == '-':
+            offset_minutes = -offset_minutes
+        return pytz.FixedOffset(offset_minutes)
+
+
 # Load the configuration
 Config.load_config("config.yaml")
 DEFAULT_TEXT = Config.get("DEFAULT_TEXT", "")
@@ -96,19 +116,7 @@ with open(fn, encoding='utf-8') as json_file:
         newEntry = []
 
         createDate = dateutil.parser.isoparse(entry['creationDate'])
-        tz = None
-        try:
-             # It's natural to use our local date/time as reference point, not UTC
-            tz = pytz.timezone(entry['timeZone'])
-        except pytz.UnknownTimeZoneError:
-            # Interpret timezones like UTC+0100 or GMT-05 correctly
-            m = re.match(r'(UTC|GMT)([-+]\d{2,4})', entry['timeZone'], re.IGNORECASE)
-            if m:
-                tz = pytz.FixedOffset(int(m.group(2)) * (60 if len(m.group(2)) == 3 else 1))
-            else:
-                print(f"Unknown timezone {entry['timeZone']}, using UTC")
-
-        localDate = createDate.astimezone(tz) if tz else createDate 
+        localDate = createDate.astimezone(get_timezone(entry['timeZone']))
 
         # Format the date and time with the weekday
         formatted_datetime = createDate.strftime("%Y-%m-%d %H:%M:%S %A")
